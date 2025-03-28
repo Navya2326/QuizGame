@@ -1,192 +1,226 @@
-// Game state
-const gameState = {
-    currentQuestionIndex: 0,
-    score: 0,
-    skipsRemaining: 3,
-    correctAnswers: 0,
-    wrongAnswers: 0,
-    timerInterval: null,
-    timeLeft: 60,
-    questions: [],
-    selectedOption: null
-};
+class Quiz {
+    constructor() {
+        this.questions = [];
+        this.currentQuestionIndex = 0;
+        this.score = 0;
+        this.skipsRemaining = 3;
+        this.timePerQuestion = 30;
+        this.timeLeft = this.timePerQuestion;
+        this.timerInterval = null;
+        this.skippedQuestions = [];
+        this.userAnswers = new Array(10).fill(null);
 
-// DOM elements
-const welcomeScreen = document.getElementById('welcome-screen');
-const quizScreen = document.getElementById('quiz-screen');
-const resultsScreen = document.getElementById('results-screen');
-const startBtn = document.getElementById('start-btn');
-const skipBtn = document.getElementById('skip-btn');
-const nextBtn = document.getElementById('next-btn');
-const restartBtn = document.getElementById('restart-btn');
-const questionElement = document.getElementById('question');
-const optionsContainer = document.getElementById('options');
-const timerContainer = document.getElementById('timer-container');
-const timerElement = document.getElementById('timer');
-const skipsRemainingElement = document.getElementById('skips-remaining');
-const timerCircleFill = document.querySelector('.timer-circle-fill');
-const finalScoreElement = document.getElementById('final-score');
-const correctAnswersElement = document.getElementById('correct-answers');
-const wrongAnswersElement = document.getElementById('wrong-answers');
-const percentageElement = document.getElementById('percentage');
-const skipsUsedElement = document.getElementById('skips-used');
+        // DOM Elements
+        this.landingPage = document.getElementById('landing');
+        this.quizContainer = document.getElementById('quiz');
+        this.resultsContainer = document.getElementById('results');
+        this.startBtn = document.getElementById('start-btn');
+        this.nextBtn = document.getElementById('next-btn');
+        this.skipBtn = document.getElementById('skip-btn');
+        this.restartBtn = document.getElementById('restart-btn');
+        this.questionText = document.getElementById('question-text');
+        this.optionsContainer = document.getElementById('options-container');
+        this.timerDisplay = document.getElementById('timer');
+        this.timerProgress = document.getElementById('timer-progress');
+        this.skipsRemainingDisplay = document.getElementById('skips-remaining');
+        this.currentQDisplay = document.getElementById('current-q');
+        this.finalScoreDisplay = document.getElementById('final-score');
+        this.correctAnswersDisplay = document.getElementById('correct-answers');
+        this.wrongAnswersDisplay = document.getElementById('wrong-answers');
+        this.skippedQuestionsDisplay = document.getElementById('skipped-questions');
 
-// Questions will be loaded from questions.js
-gameState.questions = [];
-
-// Initialize the game
-function initGame() {
-    gameState.currentQuestionIndex = 0;
-    gameState.score = 0;
-    gameState.skipsRemaining = 3;
-    gameState.correctAnswers = 0;
-    gameState.wrongAnswers = 0;
-    gameState.timeLeft = 60;
-    gameState.selectedOption = null;
-
-    skipsRemainingElement.textContent = gameState.skipsRemaining;
-    skipBtn.textContent = `Skip (${gameState.skipsRemaining} left)`;
-    timerContainer.classList.add('hidden');
-    nextBtn.classList.add('hidden');
-    loadQuestion();
-}
-
-// Load question
-function loadQuestion() {
-    const currentQuestion = gameState.questions[gameState.currentQuestionIndex];
-    questionElement.textContent = currentQuestion.question;
-    optionsContainer.innerHTML = '';
-
-    currentQuestion.options.forEach((option, index) => {
-        const optionElement = document.createElement('div');
-        optionElement.classList.add('option');
-        optionElement.textContent = option;
-        optionElement.dataset.index = index;
-        optionElement.addEventListener('click', selectOption);
-        optionsContainer.appendChild(optionElement);
-    });
-
-    startTimer();
-}
-
-// Select option
-function selectOption(e) {
-    if (gameState.selectedOption !== null) return;
-
-    const selectedIndex = parseInt(e.target.dataset.index);
-    gameState.selectedOption = selectedIndex;
-    const currentQuestion = gameState.questions[gameState.currentQuestionIndex];
-    
-    // Highlight selected option
-    e.target.classList.add('selected');
-
-    // Check answer
-    if (selectedIndex === currentQuestion.correctAnswer) {
-        e.target.classList.add('correct');
-        gameState.score += 10;
-        gameState.correctAnswers++;
-    } else {
-        e.target.classList.add('wrong');
-        gameState.score -= 5;
-        gameState.wrongAnswers++;
-        
-        // Highlight correct answer
-        const options = document.querySelectorAll('.option');
-        options[currentQuestion.correctAnswer].classList.add('correct');
+        // Event Listeners
+        this.startBtn.addEventListener('click', () => this.startQuiz());
+        this.nextBtn.addEventListener('click', () => this.nextQuestion());
+        this.skipBtn.addEventListener('click', () => this.skipQuestion());
+        this.restartBtn.addEventListener('click', () => this.restartQuiz());
     }
 
-    clearInterval(gameState.timerInterval);
-    nextBtn.classList.remove('hidden');
-}
-
-// Skip question
-function skipQuestion() {
-    if (gameState.skipsRemaining <= 0) return;
-
-    gameState.skipsRemaining--;
-    skipsRemainingElement.textContent = gameState.skipsRemaining;
-    skipBtn.textContent = `Skip (${gameState.skipsRemaining} left)`;
-    
-    clearInterval(gameState.timerInterval);
-    nextQuestion();
-}
-
-// Next question
-function nextQuestion() {
-    gameState.currentQuestionIndex++;
-    gameState.timeLeft = 60;
-    gameState.selectedOption = null;
-    nextBtn.classList.add('hidden');
-
-    if (gameState.currentQuestionIndex < gameState.questions.length) {
-        loadQuestion();
-    } else {
-        showResults();
-    }
-}
-
-// Start timer
-function startTimer() {
-    timerContainer.classList.remove('hidden');
-    gameState.timeLeft = 60;
-    timerElement.textContent = gameState.timeLeft;
-    timerCircleFill.style.strokeDashoffset = 283;
-
-    gameState.timerInterval = setInterval(() => {
-        gameState.timeLeft--;
-        timerElement.textContent = gameState.timeLeft;
-        
-        // Update circle progress
-        const progress = (gameState.timeLeft / 60) * 283;
-        timerCircleFill.style.strokeDashoffset = progress;
-
-        if (gameState.timeLeft <= 0) {
-            clearInterval(gameState.timerInterval);
-            timeUp();
+    async loadQuestions() {
+        try {
+            const response = await fetch('questions.json');
+            this.questions = await response.json();
+        } catch (error) {
+            console.error('Error loading questions:', error);
+            // Fallback questions if JSON fails to load
+            this.questions = [
+                {
+                    question: "What is the correct syntax to declare a variable in Java?",
+                    options: ["variable x;", "var x;", "int x;", "x = 0;"],
+                    answer: "int x;",
+                    difficulty: "easy"
+                },
+                // Additional fallback questions...
+            ];
         }
-    }, 1000);
+    }
+
+    startQuiz() {
+        this.landingPage.classList.add('hidden');
+        this.quizContainer.classList.remove('hidden');
+        this.loadQuestions().then(() => {
+            this.displayQuestion();
+            this.startTimer();
+        });
+    }
+
+    displayQuestion() {
+        const currentQuestion = this.questions[this.currentQuestionIndex];
+        this.currentQDisplay.textContent = this.currentQuestionIndex + 1;
+        this.questionText.textContent = currentQuestion.question;
+        this.optionsContainer.innerHTML = '';
+
+        currentQuestion.options.forEach((option, index) => {
+            const optionElement = document.createElement('div');
+            optionElement.classList.add('option');
+            optionElement.textContent = option;
+            optionElement.addEventListener('click', () => this.selectOption(option, index));
+            this.optionsContainer.appendChild(optionElement);
+        });
+
+        this.nextBtn.disabled = true;
+    }
+
+    selectOption(selectedOption, optionIndex) {
+        // Clear previous selection
+        const options = document.querySelectorAll('.option');
+        options.forEach(option => option.classList.remove('selected'));
+
+        // Mark selected option
+        options[optionIndex].classList.add('selected');
+        this.userAnswers[this.currentQuestionIndex] = selectedOption;
+        this.nextBtn.disabled = false;
+    }
+
+    startTimer() {
+        this.timeLeft = this.timePerQuestion;
+        this.updateTimerDisplay();
+
+        this.timerInterval = setInterval(() => {
+            this.timeLeft--;
+            this.updateTimerDisplay();
+
+            if (this.timeLeft <= 0) {
+                clearInterval(this.timerInterval);
+                this.handleTimeOut();
+            }
+        }, 1000);
+    }
+
+    updateTimerDisplay() {
+        this.timerDisplay.textContent = this.timeLeft;
+        const progress = (this.timeLeft / this.timePerQuestion) * 360;
+        this.timerProgress.style.background = `conic-gradient(var(--primary) ${progress}deg, #e2e8f0 0deg)`;
+    }
+
+    handleTimeOut() {
+        this.nextBtn.disabled = false;
+        this.nextQuestion();
+    }
+
+    nextQuestion() {
+        clearInterval(this.timerInterval);
+        this.checkAnswer();
+
+        if (this.currentQuestionIndex < this.questions.length - 1) {
+            this.currentQuestionIndex++;
+            this.displayQuestion();
+            this.startTimer();
+        } else {
+            this.showResults();
+        }
+    }
+
+    checkAnswer() {
+        const currentQuestion = this.questions[this.currentQuestionIndex];
+        const selectedOption = this.userAnswers[this.currentQuestionIndex];
+        const options = document.querySelectorAll('.option');
+
+        if (selectedOption === currentQuestion.answer) {
+            this.score += 10;
+            options.forEach(option => {
+                if (option.textContent === currentQuestion.answer) {
+                    option.classList.add('correct');
+                }
+            });
+        } else if (selectedOption !== null) {
+            options.forEach(option => {
+                if (option.textContent === currentQuestion.answer) {
+                    option.classList.add('correct');
+                }
+                if (option.textContent === selectedOption) {
+                    option.classList.add('wrong');
+                }
+            });
+        }
+    }
+
+    skipQuestion() {
+        if (this.skipsRemaining > 0) {
+            this.skippedQuestions.push(this.currentQuestionIndex);
+            this.skipsRemaining--;
+            this.skipsRemainingDisplay.textContent = this.skipsRemaining;
+            this.nextQuestion();
+        }
+
+        if (this.skipsRemaining === 0) {
+            this.skipBtn.disabled = true;
+        }
+    }
+
+    showResults() {
+        clearInterval(this.timerInterval);
+        this.quizContainer.classList.add('hidden');
+        this.resultsContainer.classList.remove('hidden');
+
+        const correctCount = this.questions.reduce((count, question, index) => {
+            return count + (this.userAnswers[index] === question.answer ? 1 : 0);
+        }, 0);
+
+        const wrongCount = this.questions.length - correctCount - this.skippedQuestions.length;
+
+        this.finalScoreDisplay.textContent = this.score;
+        this.correctAnswersDisplay.textContent = correctCount;
+        this.wrongAnswersDisplay.textContent = wrongCount;
+        this.skippedQuestionsDisplay.textContent = this.skippedQuestions.length;
+
+        // Add correct answers list
+        const answersList = document.createElement('div');
+        answersList.className = 'answers-list';
+        answersList.innerHTML = '<h3>Correct Answers:</h3><ol></ol>';
+        
+        const ol = answersList.querySelector('ol');
+        this.questions.forEach((q, i) => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>Q${i+1}:</strong> ${q.question}<br><strong>Answer:</strong> ${q.answer}`;
+            if (this.userAnswers[i] !== q.answer && this.userAnswers[i] !== null) {
+                li.innerHTML += `<br><strong>Your answer:</strong> <span class="wrong-answer">${this.userAnswers[i]}</span>`;
+            }
+            ol.appendChild(li);
+        });
+
+        this.resultsContainer.appendChild(answersList);
+    }
+
+    restartQuiz() {
+        this.currentQuestionIndex = 0;
+        this.score = 0;
+        this.skipsRemaining = 3;
+        this.timeLeft = this.timePerQuestion;
+        this.skippedQuestions = [];
+        this.userAnswers = new Array(10).fill(null);
+
+        this.resultsContainer.classList.add('hidden');
+        this.quizContainer.classList.remove('hidden');
+        this.skipBtn.disabled = false;
+        this.skipsRemainingDisplay.textContent = this.skipsRemaining;
+
+        this.displayQuestion();
+        this.startTimer();
+    }
 }
 
-// Time up
-function timeUp() {
-    gameState.score -= 5;
-    gameState.wrongAnswers++;
-    nextBtn.classList.remove('hidden');
-}
-
-// Show results
-function showResults() {
-    quizScreen.classList.add('hidden');
-    resultsScreen.classList.remove('hidden');
-
-    const percentage = Math.round((gameState.correctAnswers / gameState.questions.length) * 100);
-    const skipsUsed = 3 - gameState.skipsRemaining;
-
-    finalScoreElement.textContent = gameState.score;
-    correctAnswersElement.textContent = gameState.correctAnswers;
-    wrongAnswersElement.textContent = gameState.wrongAnswers;
-    percentageElement.textContent = `${percentage}%`;
-    skipsUsedElement.textContent = skipsUsed;
-}
-
-// Event listeners
-startBtn.addEventListener('click', () => {
-    welcomeScreen.classList.add('hidden');
-    quizScreen.classList.remove('hidden');
-    initGame();
-});
-
-skipBtn.addEventListener('click', skipQuestion);
-nextBtn.addEventListener('click', nextQuestion);
-restartBtn.addEventListener('click', () => {
-    resultsScreen.classList.add('hidden');
-    welcomeScreen.classList.remove('hidden');
-});
-
-// Initialize
+// Initialize the quiz when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    // Load questions from external file
-    const script = document.createElement('script');
-    script.src = 'questions.js';
-    document.head.appendChild(script);
+    const quiz = new Quiz();
 });
