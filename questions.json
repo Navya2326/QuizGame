@@ -1,0 +1,60 @@
+// Programming quiz questions
+const questions = [
+    {
+        question: "What does HTML stand for?",
+        options: ["Hyper Text Markup Language", "High Text Markup Language", "Hyper Tabular Markup Language", "None of the above"],
+        correctAnswer: 0
+    },
+    {
+        question: "Which language is used for styling web pages?",
+        options: ["HTML", "CSS", "JavaScript", "XML"],
+        correctAnswer: 1
+    },
+    {
+        question: "Which is not a JavaScript data type?",
+        options: ["Undefined", "Number", "Boolean", "Character"],
+        correctAnswer: 3
+    },
+    {
+        question: "What does CSS stand for?",
+        options: ["Cascading Style Sheets", "Colorful Style Sheets", "Computer Style Sheets", "Creative Style Sheets"],
+        correctAnswer: 0
+    },
+    {
+        question: "Which HTML element is used to define the title of a document?",
+        options: ["<title>", "<head>", "<meta>", "<body>"],
+        correctAnswer: 0
+    },
+    {
+        question: "Which of the following is a JavaScript framework?",
+        options: ["Django", "Flask", "React", "Ruby on Rails"],
+        correctAnswer: 2
+    },
+    {
+        question: "What is the correct syntax to create a function in JavaScript?",
+        options: ["function myFunction()", "function:myFunction()", "create myFunction()", "function = myFunction()"],
+        correctAnswer: 0
+    },
+    {
+        question: "Which symbol is used for comments in JavaScript?",
+        options: ["//", "#", "/*", "<!--"],
+        correctAnswer: 0
+    },
+    {
+        question: "What is the purpose of the 'this' keyword in JavaScript?",
+        options: ["Refers to the current object", "Refers to the global object", "Refers to the previous object", "None of the above"],
+        correctAnswer: 0
+    },
+    {
+        question: "Which of the following is used to declare a variable in JavaScript?",
+        options: ["var", "let", "const", "All of the above"],
+        correctAnswer: 3
+    }
+];
+
+// Update the gameState questions when this file loads
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof gameState !== 'undefined') {
+        gameState.questions = questions;
+    }
+});
