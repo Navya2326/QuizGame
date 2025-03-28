@@ -1,60 +1,52 @@
-// Programming quiz questions
-const questions = [
+[
     {
-        question: "What does HTML stand for?",
-        options: ["Hyper Text Markup Language", "High Text Markup Language", "Hyper Tabular Markup Language", "None of the above"],
-        correctAnswer: 0
+        "question": "What is the correct syntax to declare a variable in Java?",
+        "options": ["variable x;", "var x;", "int x;", "x = 0;"],
+        "answer": "int x;"
     },
     {
-        question: "Which language is used for styling web pages?",
-        options: ["HTML", "CSS", "JavaScript", "XML"],
-        correctAnswer: 1
+        "question": "Which keyword is used for inheritance in Java?",
+        "options": ["extends", "implements", "inherits", "uses"],
+        "answer": "extends"
     },
     {
-        question: "Which is not a JavaScript data type?",
-        options: ["Undefined", "Number", "Boolean", "Character"],
-        correctAnswer: 3
+        "question": "What is the default value of a boolean variable in Java?",
+        "options": ["true", "false", "null", "0"],
+        "answer": "false"
     },
     {
-        question: "What does CSS stand for?",
-        options: ["Cascading Style Sheets", "Colorful Style Sheets", "Computer Style Sheets", "Creative Style Sheets"],
-        correctAnswer: 0
+        "question": "Which of the following is not a Java keyword?",
+        "options": ["class", "interface", "string", "extends"],
+        "answer": "string"
     },
     {
-        question: "Which HTML element is used to define the title of a document?",
-        options: ["<title>", "<head>", "<meta>", "<body>"],
-        correctAnswer: 0
+        "question": "What is the output of System.out.println(10 + 20 + '30');?",
+        "options": ["1030", "330", "30", "Error"],
+        "answer": "1030"
     },
     {
-        question: "Which of the following is a JavaScript framework?",
-        options: ["Django", "Flask", "React", "Ruby on Rails"],
-        correctAnswer: 2
+        "question": "Which of the following is a valid declaration of a char?",
+        "options": ["char c = 'a';", "char c = 'ab';", "char c = \"a\";", "char c = a;"],
+        "answer": "char c = 'a';"
     },
     {
-        question: "What is the correct syntax to create a function in JavaScript?",
-        options: ["function myFunction()", "function:myFunction()", "create myFunction()", "function = myFunction()"],
-        correctAnswer: 0
+        "question": "What is the size of an int variable in Java?",
+        "options": ["16 bits", "32 bits", "64 bits", "8 bits"],
+        "answer": "32 bits"
     },
     {
-        question: "Which symbol is used for comments in JavaScript?",
-        options: ["//", "#", "/*", "<!--"],
-        correctAnswer: 0
+        "question": "Which of the following is a valid way to create an array in Java?",
+        "options": ["int arr[] = new int[5];", "int arr = new int[5];", "int arr[] = new int();", "int arr = new int;"],
+        "answer": "int arr[] = new int[5];"
     },
     {
-        question: "What is the purpose of the 'this' keyword in JavaScript?",
-        options: ["Refers to the current object", "Refers to the global object", "Refers to the previous object", "None of the above"],
-        correctAnswer: 0
+        "question": "What is the purpose of the 'final' keyword in Java?",
+        "options": ["To declare a constant", "To declare a method that cannot be overridden", "To declare a class that cannot be inherited", "All of the above"],
+        "answer": "All of the above"
     },
     {
-        question: "Which of the following is used to declare a variable in JavaScript?",
-        options: ["var", "let", "const", "All of the above"],
-        correctAnswer: 3
+        "question": "Which of the following is used to handle exceptions in Java?",
+        "options": ["try-catch", "throw", "throws", "All of the above"],
+        "answer": "All of the above"
     }
-];
-
-// Update the gameState questions when this file loads
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof gameState !== 'undefined') {
-        gameState.questions = questions;
-    }
-});
+]
